@@ -4,6 +4,9 @@ const pino = require('pino');
 const Srf = require('drachtio-srf');
 const srf = new Srf() ;
 const logger = srf.locals.logger = pino();
+
+
+const wsServer = require("./websocket/server.js");
 let callHandler;
 
 if (config.has('drachtio.host')) {
