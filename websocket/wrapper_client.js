@@ -38,6 +38,7 @@ class WebSocketClient {
 
   sendMessage(message) {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      //console.log("Sending message", message);
       this.ws.send(message);
     } else {
       this.pendingMessages.push(message);
@@ -45,6 +46,7 @@ class WebSocketClient {
   }
 
   flushPendingMessages() {
+	  console.log("Flushing messages");
     while (this.pendingMessages.length > 0) {
       const message = this.pendingMessages.shift();
       this.ws.send(message);

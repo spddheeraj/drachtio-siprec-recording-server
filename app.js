@@ -46,4 +46,12 @@ else {
 
 srf.invite(callHandler);
 
+srf.options((req, res) => {
+  res.send(200, {
+    headers: {
+      'Allow': 'INVITE, ACK, CANCEL, OPTIONS, BYE'
+    }
+  });
+});
+
 module.exports = srf;
