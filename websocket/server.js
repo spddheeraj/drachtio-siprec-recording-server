@@ -7,7 +7,7 @@ const serverUrl = 'wss://aa2.avaamo.com/call_stream?mode=siprec&account_uuid=';
 // const serverUrl = 'wss://35ce-27-58-37-185.ngrok-free.app/call_stream?account_uuid=';
 const WebSocket = require('ws');
 
-let writeFiles = true;
+let writeFiles = false;
 
 // Create a WebSocket server
 const wss = new WebSocket.Server({
