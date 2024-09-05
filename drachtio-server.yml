@@ -6,7 +6,7 @@ services:
     container_name: drachtio-server
     network_mode: host
     restart: always
-    command: drachtio --homer "$HOMERIP:9060" --homer-id $HOMERID --contact "sip:*:5060;transport=udp,tcp"  --external-ip $AWS_PUBLIC_IP --contact "sips:*:5061;transport=tls"  --external-ip $AWS_PUBLIC_IP --key-file "/sip-key.pem" --chain-file "/sip-chain.pem" --cert-file "/sip-cert.pem" --dh-param "sip-dhparam.pem" --contact "sip:*:4432;transport=ws"  --loglevel info --sofia-loglevel 1
+    command: drachtio --contact "sip:*:5060;transport=udp,tcp"  --external-ip 34.211.200.74 --contact "sips:*:5061;transport=tls"  --external-ip 34.211.200.74 --key-file "/sip-key.pem" --chain-file "/sip-chain.pem" --cert-file "/sip-cert.pem" --dh-param "sip-dhparam.pem" --contact "sip:*:4432;transport=ws"  --loglevel info --sofia-loglevel 1
     ports:
       - "5060:5060"
       - "5061:5061"
