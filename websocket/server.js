@@ -1,3 +1,6 @@
+const http = require('http');
+const url = require('url');
+
 var FileWriter = require('wav').FileWriter;
 
 const WebSocketClient = require('./wrapper_client');
@@ -65,14 +68,14 @@ wss.on('connection', (ws) => {
 		} else {
 			if (writeFiles) {
 
-				outputFileStream.write(message);
+				if(outputFileStream) outputFileStream.write(message);
 				try {
 					let {
 						leftChannel,
 						rightChannel
 					} = splitChannels(message);
-					leftOutputFileStream.write(leftChannel);
-					rightOutputFileStream.write(rightChannel);
+					if(leftOutputFileStream)leftOutputFileStream.write(leftChannel);
+					if(rightOutputFileStream)rightOutputFileStream.write(rightChannel);
 				} catch (e) {
 					console.log(e)
 				};
@@ -84,12 +87,38 @@ wss.on('connection', (ws) => {
 		if (client) client.closeConnection()
 		if (writeFiles) {
 
-			outputFileStream.end();
-			leftOutputFileStream.end();
-			rightOutputFileStream.end();
+			if(outputFileStream)outputFileStream.end();
+			if(leftOutputFileStream)leftOutputFileStream.end();
+			if(rightOutputFileStream)rightOutputFileStream.end();
 		}
 	});
 
 	// Send a welcome message to the client
 	ws.send('Welcome to the WebSocket server!');
 });
+
+
+const server = http.createServer((req, res) => {
+	const parsedUrl = url.parse(req.url, true);
+	
+	// Toggle the boolean value on POST to /toggle
+	if (parsedUrl.pathname === '/record' && req.method === 'POST') {
+	  writeFiles = !writeFiles;
+	  res.writeHead(200, { 'Content-Type': 'text/plain' });
+	  res.end(`Boolean value is now: ${writeFiles}`);
+	}
+	// Return the current boolean value on GET to /status
+	else if (parsedUrl.pathname === '/status' && req.method === 'GET') {
+	  res.writeHead(200, { 'Content-Type': 'text/plain' });
+	  res.end(`Current boolean value: ${writeFiles}`);
+	}
+	else {
+	  res.writeHead(404, { 'Content-Type': 'text/plain' });
+	  res.end('Not Found');
+	}
+  });
+  
+  // Start the server on port 3939
+  server.listen(3939, () => {
+	console.log('Server running on http://localhost:3939');
+  });
