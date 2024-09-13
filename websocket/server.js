@@ -1,5 +1,7 @@
 const http = require('http');
 const url = require('url');
+const fs = require('fs');
+const heapdump = require('heapdump');
 
 var FileWriter = require('wav').FileWriter;
 
@@ -46,14 +48,14 @@ wss.on('connection', (ws) => {
 			sampleRate: 8000,
 			channels: 2
 		});
-		var leftOutputFileStream = new FileWriter(fileName + "_left.wav", {
-			sampleRate: 8000,
-			channels: 1
-		});
-		var rightOutputFileStream = new FileWriter(fileName + "_right.wav", {
-			sampleRate: 8000,
-			channels: 1
-		});
+		// var leftOutputFileStream = new FileWriter(fileName + "_left.wav", {
+		// 	sampleRate: 8000,
+		// 	channels: 1
+		// });
+		// var rightOutputFileStream = new FileWriter(fileName + "_right.wav", {
+		// 	sampleRate: 8000,
+		// 	channels: 1
+		// });
 	}
 	// Handle incoming messages
 	ws.on('message', (message) => {
@@ -69,27 +71,31 @@ wss.on('connection', (ws) => {
 			if (writeFiles) {
 
 				if(outputFileStream) outputFileStream.write(message);
-				try {
-					let {
-						leftChannel,
-						rightChannel
-					} = splitChannels(message);
-					if(leftOutputFileStream)leftOutputFileStream.write(leftChannel);
-					if(rightOutputFileStream)rightOutputFileStream.write(rightChannel);
-				} catch (e) {
-					console.log(e)
-				};
+				// try {
+				// 	let {
+				// 		leftChannel,
+				// 		rightChannel
+				// 	} = splitChannels(message);
+				// 	if(leftOutputFileStream)leftOutputFileStream.write(leftChannel);
+				// 	if(rightOutputFileStream)rightOutputFileStream.write(rightChannel);
+				// } catch (e) {
+				// 	console.log(e)
+				// };
 			}
 		}
 		client.sendMessage(message);
 	});
 	ws.on("close", () => {
 		if (client) client.closeConnection()
+		client = null;
 		if (writeFiles) {
 
 			if(outputFileStream)outputFileStream.end();
-			if(leftOutputFileStream)leftOutputFileStream.end();
-			if(rightOutputFileStream)rightOutputFileStream.end();
+			// if(leftOutputFileStream)leftOutputFileStream.end();
+			// if(rightOutputFileStream)rightOutputFileStream.end();
+			outputFileStream = null;
+        	// leftOutputFileStream = null;
+        	// rightOutputFileStream = null;
 		}
 	});
 
@@ -111,6 +117,18 @@ const server = http.createServer((req, res) => {
 	else if (parsedUrl.pathname === '/status' && req.method === 'GET') {
 	  res.writeHead(200, { 'Content-Type': 'text/plain' });
 	  res.end(`Current boolean value: ${writeFiles}`);
+	}
+	// Handle memory dump on GET to /memory-dump
+	else if (parsedUrl.pathname === '/memory-dump' && req.method === 'GET') {
+		const dumpFileName = `heapdump-${Date.now()}.heapsnapshot`; // Filename with timestamp
+
+		heapdump.writeSnapshot(dumpFileName, (err, dumpFileName) => {
+			if (err) {
+				console.error('Error taking heap snapshot:', err);
+			} else {
+				console.log('Heap snapshot saved to', dumpFileName);
+			}
+		});
 	}
 	else {
 	  res.writeHead(404, { 'Content-Type': 'text/plain' });

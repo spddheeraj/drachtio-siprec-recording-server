@@ -26,6 +26,7 @@ class WebSocketClient {
 
     this.ws.on('close', () => {
       console.log('WebSocket connection closed');
+      this.ws = null;
     });
   }
 
@@ -41,7 +42,12 @@ class WebSocketClient {
       //console.log("Sending message", message);
       this.ws.send(message);
     } else {
-      this.pendingMessages.push(message);
+      if (this.pendingMessages.length < 1000) { // Limit to 1000 pending messages
+        this.pendingMessages.push(message);
+      } else {
+        if(!this.warningLogged) console.warn("Pending message queue full, discarding message.");
+        this.warningLogged = true;
+      }
     }
   }
 
@@ -54,7 +60,9 @@ class WebSocketClient {
   }
   closeConnection() {
     if (this.ws) {
+      this.ws.removeAllListeners();  // Remove event listeners
       this.ws.close();
+      this.ws = null; 
     }
   }
 }

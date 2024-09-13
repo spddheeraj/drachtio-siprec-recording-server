@@ -46,6 +46,7 @@
     "drachtio-fsmrf": "^1.4.2",
     "drachtio-sip": "git+https://github.com/spddheeraj/drachtio-sip.git",
     "drachtio-srf": "^4.4.6",
+    "heapdump": "^0.3.15",
     "music-metadata": "^10.0.1",
     "node-fetch": "^2.7.0",
     "pino": "^4.13.0",
